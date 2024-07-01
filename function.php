@@ -1,11 +1,19 @@
 <?php
 $conn = mysqli_connect("localhost", "root", "", "kantor");
 
-function query($query) {
+function query($query, $params = []) {
     global $conn;
-    $result = mysqli_query($conn, $query);
+    $stmt = $conn->prepare($query);
+
+    if ($params) {
+        $types = str_repeat('s', count($params));
+        $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
     $rows = [];
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = $result->fetch_assoc()) {
         $rows[] = $row;
     }
     return $rows;

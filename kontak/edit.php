@@ -1,49 +1,50 @@
 <?php
-require '../function.php';
+include '../koneksi.php';
 
 $error_message = '';
 
-if (isset($_GET['id'])) {
-    $id_karyawan = $_GET['id'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $kontak_id = $_POST['kontak_id'];
+    $karyawan_id = $_POST['karyawan_id'];
+    $gmail = $_POST['gmail'];
+    $no_telp = $_POST['no_telp'];
 
-    $kontak = query("SELECT karyawan.nama, kontak.gmail, kontak.no_telp 
-                     FROM kontak 
-                     JOIN karyawan ON kontak.id_karyawan = karyawan.id 
-                     WHERE kontak.id_karyawan = $id_karyawan");
-    if (empty($kontak)) {
-        die("Data tidak ditemukan");
+    $sql = "UPDATE kontak SET 
+            id_karyawan=?, 
+            gmail=?, 
+            no_telp=? 
+            WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("issi", $karyawan_id, $gmail, $no_telp, $kontak_id);
+
+    if ($stmt->execute()) {
+        header("Location: index.php");
+        exit();
+    } else {
+        $error_message = "Error updating record: " . $stmt->error;
     }
+}
 
-    $kontak = $kontak[0];
+if (isset($_GET['id'])) {
+    $kontak_id = $_GET['id'];
+    $sql = "SELECT kontak.*, karyawan.nama 
+            FROM kontak 
+            INNER JOIN karyawan ON kontak.id_karyawan = karyawan.id 
+            WHERE kontak.id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $kontak_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $nama = $_POST['nama'];
-        $gmail = $_POST['gmail'];
-        $no_telp = $_POST['no_telp'];
-
-        if (!empty($nama) && !empty($gmail) && !empty($no_telp)) {
-            // Update karyawan table
-            $sql_karyawan = "UPDATE karyawan SET nama = ? WHERE id = ?";
-            $stmt_karyawan = $conn->prepare($sql_karyawan);
-            $stmt_karyawan->bind_param("si", $nama, $id_karyawan);
-
-            // Update kontak table
-            $sql_kontak = "UPDATE kontak SET gmail = ?, no_telp = ? WHERE id_karyawan = ?";
-            $stmt_kontak = $conn->prepare($sql_kontak);
-            $stmt_kontak->bind_param("ssi", $gmail, $no_telp, $id_karyawan);
-
-            if ($stmt_karyawan->execute() && $stmt_kontak->execute()) {
-                header("Location: index.php");
-                exit();
-            } else {
-                $error_message = "Error: " . $stmt_karyawan->error . " / " . $stmt_kontak->error;
-            }
-        } else {
-            $error_message = "Please fill in all fields.";
-        }
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+    } else {
+        echo "Data kontak tidak ditemukan.";
+        exit();
     }
 } else {
-    die("ID tidak ditemukan");
+    echo "Parameter ID tidak ada.";
+    exit();
 }
 ?>
 
@@ -51,9 +52,9 @@ if (isset($_GET['id'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data Kontak</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="../style.css">
     <style>
         .form-control {
             border: 2px solid #ccc;
@@ -68,28 +69,46 @@ if (isset($_GET['id'])) {
             padding: 10px 20px;
         }
     </style>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $("#karyawan_name").autocomplete({
+                source: "get_karyawan_nama.php",
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#karyawan_id').val(ui.item.id);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Edit Data Kontak</h1>
+    <div class="container mt-5">
+        <h3>Edit Data Kontak</h3>
+        <br>
         <?php if (!empty($error_message)): ?>
             <div class="alert alert-danger" role="alert">
-                <?= $error_message; ?>
+                <?php echo $error_message; ?>
             </div>
         <?php endif; ?>
-        <form action="" method="POST">
-            <div class="mt-2">
-                <label for="nama" class="form-label">Nama Karyawan</label>
-                <input type="text" class="form-control" id="nama" name="nama" value="<?= $kontak['nama'] ?>" autocomplete="off">
-
-                <label for="gmail" class="form-label">Gmail</label>
-                <input type="email" class="form-control" id="gmail" name="gmail" value="<?= $kontak['gmail'] ?>" autocomplete="off">
-                
-                <label for="no_telp" class="form-label">No. Telepon</label>
-                <input type="text" class="form-control" id="no_telp" name="no_telp" value="<?= $kontak['no_telp'] ?>" autocomplete="off">
-
-                <button type="submit" class="btn btn-primary mt-4">Simpan</button>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+            <input type="hidden" name="kontak_id" value="<?php echo $row['id']; ?>">
+            <div class="mb-3">
+                <label for="karyawan_name" class="form-label">Nama Karyawan</label>
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo $row['nama']; ?>" required>
+                <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo $row['id_karyawan']; ?>">
             </div>
+            <div class="mb-3">
+                <label for="gmail" class="form-label">Gmail</label>
+                <input type="email" id="gmail" name="gmail" class="form-control" value="<?php echo $row['gmail']; ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="no_telp" class="form-label">No. Telepon</label>
+                <input type="text" id="no_telp" name="no_telp" class="form-control" value="<?php echo $row['no_telp']; ?>" required>
+            </div>
+            <button type="submit" name="update" value="update" class="btn btn-primary">Simpan</button>
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

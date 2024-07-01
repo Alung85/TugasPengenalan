@@ -82,10 +82,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" class="form-control" id="karyawan_name" name="karyawan_name" autocomplete="">
                 <input type="hidden" id="karyawan_id" name="karyawan_id">
                 
-                <label for="gmail" class="form-label">Gmail</label>
+                <label for="gmail" class="form-label">Alamat Gmail</label>
                 <input type="email" class="form-control" id="gmail" name="gmail" autocomplete="off">
 
-                <label for="no_telp" class="form-label">No. Telepon</label>
+                <label for="no_telp" class="form-label">No Telepon</label>
                 <input type="text" class="form-control" id="no_telp" name="no_telp" autocomplete="off">
 
                 <button type="submit" name="tambah" value="tambah" class="btn btn-primary mt-4">Simpan</button>

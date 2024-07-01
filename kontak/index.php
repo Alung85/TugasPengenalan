@@ -28,8 +28,8 @@ $kontak = query("SELECT kontak.id, kontak.id_karyawan, karyawan.nama, kontak.gma
                 <tr>
                     <th>ID</th>
                     <th>Nama Karyawan</th>
-                    <th>Gmail</th>
-                    <th>No. Telepon</th>
+                    <th>Alamat Gmail</th>
+                    <th>No Telepon</th>
                     <th>Aksi</th>
                 </tr>
             </thead>

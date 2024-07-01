@@ -2,12 +2,12 @@
 require '../function.php';
 
 if (isset($_GET['id'])) {
-    $id_karyawan = $_GET['id'];
+    $id = $_GET['id'];
 
     // Delete from kontak table
-    $sql_kontak = "DELETE FROM kontak WHERE id_karyawan = ?";
+    $sql_kontak = "DELETE FROM kontak WHERE id = ?";
     $stmt_kontak = $conn->prepare($sql_kontak);
-    $stmt_kontak->bind_param("i", $id_karyawan);
+    $stmt_kontak->bind_param("i", $id);
 
     if ($stmt_kontak->execute()) {
         header("Location: index.php");

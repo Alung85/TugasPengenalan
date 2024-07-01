@@ -59,7 +59,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="mt-2" for="departemen">Departemen</label>
+                <label class="mt-2" for="departemen">Department</label>
                 <select class="form-control mt-1" name="departemen" id="departemen">
                     <?php
                     $conn = new mysqli('localhost', 'root', '', 'kantor');

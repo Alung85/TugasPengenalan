@@ -56,7 +56,7 @@ $result_kerja = mysqli_query($conn, $query_kerja);
                 </select>
             </div>
             <div class="mb-3">
-                <label for="departemen" class="form-label">Departemen</label>
+                <label for="departemen" class="form-label">Department</label>
                 <select id="departemen" name="departemen" class="form-control" required>
                     <?php while ($departemen = mysqli_fetch_assoc($result_departemen)) : ?>
                         <option value="<?= $departemen['id'] ?>" <?= ($row['departemen'] == $departemen['id']) ? 'selected' : '' ?>><?= $departemen['nama_departemen'] ?></option>
