@@ -1,9 +1,9 @@
 <?php
 require '../function.php';
-$kontak = query("SELECT kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.no_telp 
+$kontak = query("SELECT kontak.id, kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.no_telp 
                  FROM kontak 
                  JOIN karyawan ON kontak.id_karyawan = karyawan.id 
-                 ORDER BY kontak.id_karyawan DESC");
+                 ORDER BY kontak.id ASC");
 ?>
 
 <!DOCTYPE html>
@@ -12,6 +12,10 @@ $kontak = query("SELECT kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.
     <meta charset="UTF-8">
     <title>Data Kontak Karyawan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -19,7 +23,7 @@ $kontak = query("SELECT kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.
     <div class="container">
         <h2>Data Kontak</h2>
         <a href="tambah.php"><button class="btn btn-primary mb-2">Tambah Data Kontak Karyawan</button></a>
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="datatable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -33,7 +37,7 @@ $kontak = query("SELECT kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.
                 <?php if (!empty($kontak)): ?>
                     <?php foreach ($kontak as $row): ?>
                         <tr>
-                            <td><?= $row['id_karyawan'] ?></td>
+                            <td><?= $row['id'] ?></td>
                             <td><?= $row['nama'] ?></td>
                             <td><?= $row['gmail'] ?></td>
                             <td><?= $row['no_telp'] ?></td>
@@ -51,6 +55,10 @@ $kontak = query("SELECT kontak.id_karyawan, karyawan.nama, kontak.gmail, kontak.
             </tbody>
         </table>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
