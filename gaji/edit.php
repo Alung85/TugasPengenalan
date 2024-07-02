@@ -6,22 +6,36 @@ $error_message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gaji_id = $_POST['gaji_id'];
     $karyawan_id = $_POST['karyawan_id'];
-    $jumlah_gaji = $_POST['jumlah_gaji'];
+    $jumlah_gaji = str_replace('.', '', $_POST['jumlah_gaji']); // Menghapus titik sebelum menyimpan ke database
     $tanggal_gaji = $_POST['tanggal_gaji'];
 
-    $sql = "UPDATE gaji SET 
-            id_karyawan=?, 
-            jumlah_gaji=?, 
-            tanggal_gaji=? 
-            WHERE id=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iisi", $karyawan_id, $jumlah_gaji, $tanggal_gaji, $gaji_id);
+    // Check if the karyawan_id already exists in gaji table excluding the current record
+    $sql_check = "SELECT COUNT(*) AS count FROM gaji WHERE id_karyawan = ? AND id != ?";
+    $stmt_check = $conn->prepare($sql_check);
+    $stmt_check->bind_param("ii", $karyawan_id, $gaji_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $row_check = $result_check->fetch_assoc();
 
-    if ($stmt->execute()) {
-        header("Location: index.php");
-        exit();
+    if ($row_check['count'] > 0) {
+        $error_message = "Data dengan nama karyawan ini sudah ada. Mohon masukkan data lain.";
     } else {
-        $error_message = "Error updating record: " . $stmt->error;
+        // Update data in database
+        $sql = "UPDATE gaji SET 
+                id_karyawan=?, 
+                jumlah_gaji=?, 
+                tanggal_gaji=? 
+                WHERE id=?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("iisi", $karyawan_id, $jumlah_gaji, $tanggal_gaji, $gaji_id);
+
+        if ($stmt->execute()) {
+            header("Location: index.php");
+            exit();
+        } else {
+            $error_message = "Error updating record: " . $stmt->error;
+        }
     }
 }
 
@@ -35,7 +49,7 @@ if (isset($_GET['id'])) {
     $stmt->bind_param("i", $gaji_id);
     $stmt->execute();
     $result = $stmt->get_result();
-
+    
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
     } else {
@@ -43,6 +57,7 @@ if (isset($_GET['id'])) {
         exit();
     }
 } else {
+    header("Location: index.php");
     echo "Parameter ID tidak ada.";
     exit();
 }
@@ -81,6 +96,13 @@ if (isset($_GET['id'])) {
                     $('#karyawan_id').val(ui.item.id);
                 }
             });
+
+            // Format input jumlah gaji dengan titik setiap 3 angka
+            $('#jumlah_gaji').on('input', function() {
+                var value = $(this).val().replace(/\D/g, '');
+                var formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                $(this).val(formattedValue);
+            });
         });
     </script>
 </head>
@@ -93,20 +115,20 @@ if (isset($_GET['id'])) {
                 <?php echo $error_message; ?>
             </div>
         <?php endif; ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $gaji_id; ?>" method="POST">
             <input type="hidden" name="gaji_id" value="<?php echo $row['id']; ?>">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo $row['nama']; ?>" required>
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo htmlspecialchars($row['nama']); ?>" required>
                 <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo $row['id_karyawan']; ?>">
             </div>
             <div class="mb-3">
                 <label for="jumlah_gaji" class="form-label">Jumlah Gaji</label>
-                <input type="text" id="jumlah_gaji" name="jumlah_gaji" class="form-control" value="<?php echo $row['jumlah_gaji']; ?>" required>
+                <input type="text" id="jumlah_gaji" name="jumlah_gaji" class="form-control" value="<?php echo number_format($row['jumlah_gaji'], 0, ',', '.'); ?>" required>
             </div>
             <div class="mb-3">
                 <label for="tanggal_gaji" class="form-label">Tanggal Gaji</label>
-                <input type="date" id="tanggal_gaji" name="tanggal_gaji" class="form-control" value="<?php echo $row['tanggal_gaji']; ?>" required>
+                <input type="date" id="tanggal_gaji" name="tanggal_gaji" class="form-control" value="<?php echo htmlspecialchars($row['tanggal_gaji']); ?>" required>
             </div>
             <button type="submit" name="update" value="update" class="btn btn-primary">Simpan</button>
         </form>

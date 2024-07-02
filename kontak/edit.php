@@ -9,19 +9,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gmail = $_POST['gmail'];
     $no_telp = $_POST['no_telp'];
 
-    $sql = "UPDATE kontak SET 
-            id_karyawan=?, 
-            gmail=?, 
-            no_telp=? 
-            WHERE id=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issi", $karyawan_id, $gmail, $no_telp, $kontak_id);
-
-    if ($stmt->execute()) {
-        header("Location: index.php");
-        exit();
+    // Validate no_telp length
+    if (strlen($no_telp) !== 12) {
+        $error_message = "Nomor telepon harus terdiri dari 12 angka.";
     } else {
-        $error_message = "Error updating record: " . $stmt->error;
+        // Check if the phone number already exists
+        $sql_check_phone = "SELECT COUNT(*) AS count FROM kontak WHERE no_telp = ? AND id != ?";
+        $stmt_check_phone = $conn->prepare($sql_check_phone);
+        $stmt_check_phone->bind_param("si", $no_telp, $kontak_id);
+        $stmt_check_phone->execute();
+        $result_check_phone = $stmt_check_phone->get_result();
+        $row_check_phone = $result_check_phone->fetch_assoc();
+
+        if ($row_check_phone['count'] > 0) {
+            $error_message = "Nomor telepon ini sudah ada. Mohon masukkan nomor telepon yang lain.";
+        } else {
+            // Update data in database
+            $sql = "UPDATE kontak SET 
+                    id_karyawan=?, 
+                    gmail=?, 
+                    no_telp=? 
+                    WHERE id=?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("issi", $karyawan_id, $gmail, $no_telp, $kontak_id);
+
+            if ($stmt->execute()) {
+                header("Location: index.php");
+                exit();
+            } else {
+                $error_message = "Error updating record: " . $stmt->error;
+            }
+        }
     }
 }
 
@@ -43,6 +61,7 @@ if (isset($_GET['id'])) {
         exit();
     }
 } else {
+    header("Location: index.php");
     echo "Parameter ID tidak ada.";
     exit();
 }
@@ -93,7 +112,7 @@ if (isset($_GET['id'])) {
                 <?php echo $error_message; ?>
             </div>
         <?php endif; ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $kontak_id; ?>" method="POST">
             <input type="hidden" name="kontak_id" value="<?php echo $row['id']; ?>">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
@@ -105,7 +124,7 @@ if (isset($_GET['id'])) {
                 <input type="email" id="gmail" name="gmail" class="form-control" value="<?php echo $row['gmail']; ?>" required>
             </div>
             <div class="mb-3">
-                <label for="no_telp" class="form-label">No. Telepon</label>
+                <label for="no_telp" class="form-label">No Telepon</label>
                 <input type="text" id="no_telp" name="no_telp" class="form-control" value="<?php echo $row['no_telp']; ?>" required>
             </div>
             <button type="submit" name="update" value="update" class="btn btn-primary">Simpan</button>

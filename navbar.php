@@ -11,9 +11,9 @@
             Daftar Data
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/karyawan/index.php">Data Karyawann</a></li>
+            <li><a class="dropdown-item" href="/karyawan/index.php">Data Karyawan</a></li>
             <li><a class="dropdown-item" href="/gaji/index.php">Data Gaji</a></li>
-            <li><a class="dropdown-item" href="/kontak/index.php">Data Kontak Karyawann</a></li>
+            <li><a class="dropdown-item" href="/kontak/index.php">Data Kontak Karyawan</a></li>
           </ul>
         </li>
       </ul>

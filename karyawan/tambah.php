@@ -1,9 +1,48 @@
+<?php
+require '../function.php';
+
+if (isset($_POST['tambah'])) {
+    // Validate and sanitize input
+    $nama = isset($_POST['nama']) ? $_POST['nama'] : '';
+    $jabatan = isset($_POST['jabatan']) ? intval($_POST['jabatan']) : 0;
+    $departemen = isset($_POST['departemen']) ? intval($_POST['departemen']) : 0;
+    $kerja = isset($_POST['kerja']) ? intval($_POST['kerja']) : 0;
+
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'kantor');
+
+    // Sanitize inputs (optional if using prepared statements)
+    $nama = $conn->real_escape_string($nama);
+
+    // Check if name already exists
+    $sql_check = "SELECT * FROM karyawan WHERE nama = '$nama'";
+    $result_check = $conn->query($sql_check);
+
+    if ($result_check->num_rows > 0) {
+        echo "<script>alert('Nama sudah ada. Masukkan nama lain.');</script>";
+    } else {
+        // Insert into database
+        $sql = "INSERT INTO karyawan (nama, jabatan, departemen, kerja) 
+                VALUES ('$nama', $jabatan, $departemen, $kerja)";
+
+        if ($conn->query($sql) === TRUE) {
+            header('Location: /karyawan/index.php');
+            exit;
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
+    }
+
+    $conn->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Data karyawan</title>
+    <title>Tambah Data Karyawan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         .form-control {
@@ -24,14 +63,29 @@
             font-family: Arial, Helvetica, sans-serif;
         }
     </style>
+    <script>
+        function validateForm() {
+            var nama = document.getElementById("nama").value;
+            
+            // Check if name is empty or already exists
+            if (nama === '') {
+                alert("Nama tidak boleh kosong.");
+                return false;
+            }
+            
+            // Additional client-side validation if needed
+            
+            return true;
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h3>Tambah Data karyawan</h3>
+        <h3>Tambah Data Karyawan</h3>
         <br>
-        <form action="tambah.php" method="POST">
+        <form action="tambah.php" method="POST" onsubmit="return validateForm()">
             <div class="mt-2">
-                <label for="nama" class="form-label">Nama Karyawan</label>
+                <label for="nama" class="form-label">Nama Lengkap karyawan</label>
                 <input type="text" class="form-control" id="nama" name="nama" autocomplete="off">
             </div>
             <div class="form-group">
@@ -83,6 +137,7 @@
                     ?>
                 </select>
             </div>
+            <div class="form-group">
                 <label class="mt-2" for="kerja">Tipe Kerja</label>
                 <select class="form-control mt-1" name="kerja" id="kerja">
                     <?php
@@ -100,45 +155,17 @@
                             echo '<option value="' . $row['id'] . '">' . $row['kerja'] . '</option>';
                         }
                     } else {
-                        echo '<option value="">Tidak ada Departemen tersedia</option>';
+                        echo '<option value="">Tidak ada Tipe Kerja tersedia</option>';
                     }
 
                     $conn->close();
                     ?>
                 </select>
-                <button type="submit" name="tambah" value="tambah" class="btn btn-primary mt-4">Simpan</button>
             </div>
+            <button type="submit" name="tambah" value="tambah" class="btn btn-primary mt-4">Simpan</button>
         </form>
     </div>
-    <?php
-    if (isset($_POST['tambah'])) {
-        // Validate and sanitize input
-        $nama = isset($_POST['nama']) ? $_POST['nama'] : '';
-        $jabatan = isset($_POST['jabatan']) ? intval($_POST['jabatan']) : 0;
-        $departemen = isset($_POST['departemen']) ? intval($_POST['departemen']) : 0;
-        $kerja = isset($_POST['kerja']) ? intval($_POST['kerja']) : 0;
-
-
-        // Database connection
-        $conn = new mysqli('localhost', 'root', '', 'kantor');
-
-        // Sanitize inputs (optional if using prepared statements)
-        $nama = $conn->real_escape_string($nama);
-
-        // Insert into database
-        $sql = "INSERT INTO karyawan (nama, jabatan, departemen, kerja) 
-                VALUES ('$nama', $jabatan, $departemen, $kerja)";
-
-        if ($conn->query($sql) === TRUE) {
-            header('Location: /karyawan/index.php');
-            exit;
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
-        }
-
-        $conn->close();
-    }
-    ?>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

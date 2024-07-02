@@ -5,22 +5,34 @@ $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $karyawan_id = $_POST['karyawan_id'];
-    $jumlah_gaji = $_POST['jumlah_gaji'];
+    $jumlah_gaji = str_replace('.', '', $_POST['jumlah_gaji']); // Menghapus titik pemisah ribuan sebelum menyimpan ke database
     $tanggal_gaji = $_POST['tanggal_gaji'];
 
     // Memastikan format tanggal sesuai dengan 'YYYY-MM-DD'
     $tanggal_gaji = date('Y-m-d', strtotime($tanggal_gaji));
 
     if (!empty($karyawan_id) && !empty($jumlah_gaji) && !empty($tanggal_gaji)) {
-        $sql = "INSERT INTO gaji (id_karyawan, jumlah_gaji, tanggal_gaji) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iis", $karyawan_id, $jumlah_gaji, $tanggal_gaji);
+        // Check if the karyawan_id already exists in gaji table
+        $sql_check = "SELECT COUNT(*) AS count FROM gaji WHERE id_karyawan = ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("i", $karyawan_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        $row = $result_check->fetch_assoc();
 
-        if ($stmt->execute()) {
-            header("Location: index.php");
-            exit();
+        if ($row['count'] > 0) {
+            $error_message = "Data dengan nama karyawan ini sudah ada. Mohon masukkan data lain.";
         } else {
-            $error_message = "Error: " . $stmt->error;
+            $sql = "INSERT INTO gaji (id_karyawan, jumlah_gaji, tanggal_gaji) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iis", $karyawan_id, $jumlah_gaji, $tanggal_gaji);
+
+            if ($stmt->execute()) {
+                header("Location: index.php");
+                exit();
+            } else {
+                $error_message = "Error: " . $stmt->error;
+            }
         }
     } else {
         $error_message = "Please fill in all fields.";
@@ -42,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $(function() {
             $("#karyawan_name").autocomplete({
                 source: "get_karyawan_nama.php", // Pastikan ini sesuai dengan nama file atau endpoint yang benar
-                minLength: 2,
+                minLength: 1,
                 select: function(event, ui) {
                     $('#karyawan_id').val(ui.item.id);
                 }
@@ -53,6 +65,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     alert('Please select a valid Karyawan.');
                     return false;
                 }
+            });
+
+            $("#jumlah_gaji").on("input", function() {
+                var value = this.value.replace(/\D/g, ''); // Hanya angka
+                var formattedValue = "";
+                for (var i = value.length - 1; i >= 0; i--) {
+                    formattedValue = value[i] + formattedValue;
+                    if ((value.length - i) % 3 === 0 && i !== 0) {
+                        formattedValue = "." + formattedValue;
+                    }
+                }
+                this.value = formattedValue;
             });
         });
     </script>

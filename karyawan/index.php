@@ -6,7 +6,7 @@ $karyawan = query("SELECT karyawan.id, karyawan.nama, jabatan.nama_jabatan, depa
                    INNER JOIN jabatan ON karyawan.jabatan = jabatan.id 
                    INNER JOIN departemen ON karyawan.departemen = departemen.id 
                    INNER JOIN kerja ON karyawan.kerja = kerja.id
-                   ORDER BY karyawan.id DESC");
+                   ORDER BY karyawan.id ASC");
 
 ?>
 
@@ -29,8 +29,8 @@ $karyawan = query("SELECT karyawan.id, karyawan.nama, jabatan.nama_jabatan, depa
         <table style="text-align: center;" id="datatable" class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nama</th>
+                    <th>No</th>
+                    <th>Nama Lengkap</th>
                     <th>Jabatan</th>
                     <th>Department</th>
                     <th>Tipe Kerja</th>
@@ -38,9 +38,11 @@ $karyawan = query("SELECT karyawan.id, karyawan.nama, jabatan.nama_jabatan, depa
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($karyawan as $row): ?>
+                <?php
+                $no = 1; // Variabel untuk nomor urut
+                foreach ($karyawan as $row): ?>
                 <tr>
-                    <td><?= $row['id'] ?></td>
+                    <td><?= $no++ ?></td>
                     <td><?= $row['nama'] ?></td>
                     <td><?= $row['nama_jabatan'] ?></td>
                     <td><?= $row['nama_departemen'] ?></td>
