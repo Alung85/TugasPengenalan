@@ -14,7 +14,7 @@
         }
     ?>
     <div class="container mt-4 ">
-        <h3 style="text-align: center;">Selamat Datang</h3>
+        <h3 class="fst-italic" style="text-align: center;">Hola</h3>
     </div>
     <?php
         if (file_exists("../footer.php")) {

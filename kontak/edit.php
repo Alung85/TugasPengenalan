@@ -1,5 +1,5 @@
 <?php
-include '../koneksi.php';
+require '../function.php';
 
 $error_message = '';
 
@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Validate no_telp length
     if (strlen($no_telp) !== 12) {
-        $error_message = "Nomor telepon harus terdiri dari 12 angka.";
+        $error_message = "Nomor telepon Invalid, Masukkan nomor telepon lain.";
     } else {
         // Check if the phone number already exists
         $sql_check_phone = "SELECT COUNT(*) AS count FROM kontak WHERE no_telp = ? AND id != ?";

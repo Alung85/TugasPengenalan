@@ -1,5 +1,5 @@
 <?php
-include '../koneksi.php';
+require '../function.php';
 
 $error_message = '';
 
@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <div class="mt-2">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" class="form-control" id="karyawan_name" name="karyawan_name" autocomplete="off">
+                <input type="text" class="form-control" id="karyawan_name" name="karyawan_name" autocomplete="off" autofocus="on">
                 <input type="hidden" id="karyawan_id" name="karyawan_id">
 
                 <label for="jumlah_gaji" class="form-label">Jumlah Gaji</label>

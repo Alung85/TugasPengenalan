@@ -21,10 +21,9 @@ $karyawan = query("SELECT karyawan.id, karyawan.nama, jabatan.nama_jabatan, depa
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <?php include("../navbar.php"); ?>
     <div class="container">
         <h2>Data Karyawan</h2>
-        <a href="tambah.php"><button class="btn btn-primary mb-2">Tambah Data Karyawan Baru</button></a>
+        <a href="tambah.php"><button class="btn btn-primary mb-2 fw-normal"><i class="bi bi-person-add"></i> Add new data</button></a>
 
         <table style="text-align: center;" id="datatable" class="table table-bordered">
             <thead>

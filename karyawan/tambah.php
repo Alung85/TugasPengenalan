@@ -8,6 +8,9 @@ if (isset($_POST['tambah'])) {
     $departemen = isset($_POST['departemen']) ? intval($_POST['departemen']) : 0;
     $kerja = isset($_POST['kerja']) ? intval($_POST['kerja']) : 0;
 
+    // Remove any non-alphabetic characters
+    $nama = preg_replace("/[^a-zA-Z\s]/", "", $nama);
+
     // Database connection
     $conn = new mysqli('localhost', 'root', '', 'kantor');
 
@@ -50,12 +53,10 @@ if (isset($_POST['tambah'])) {
             border-radius: 4px;
             padding: 10px;
         }
-        
         .form-control:focus {
             border-color: #1e90ff;
             box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
         }
-        
         .btn-primary {
             padding: 10px 20px;
         }
@@ -67,16 +68,55 @@ if (isset($_POST['tambah'])) {
         function validateForm() {
             var nama = document.getElementById("nama").value;
             
-            // Check if name is empty or already exists
+            // Check if name is empty or contains non-alphabet characters
             if (nama === '') {
                 alert("Nama tidak boleh kosong.");
                 return false;
             }
-            
-            // Additional client-side validation if needed
+
+            var regex = /^[a-zA-Z\s]+$/;
+            if (!regex.test(nama)) {
+                alert("Nama harus menggunakan alphabet saja.");
+                return false;
+            }
             
             return true;
         }
+
+        function onlyAlphabets(e, t) {
+            try {
+                if (window.event) {
+                    var charCode = window.event.keyCode;
+                } else if (e) {
+                    var charCode = e.which;
+                } else {
+                    return true;
+                }
+                if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123) || charCode == 32) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (err) {
+                alert(err.Description);
+            }
+        }
+
+        function handlePaste(e) {
+            var pastedData = e.clipboardData.getData('text');
+            var regex = /^[a-zA-Z\s]+$/;
+
+            if (!regex.test(pastedData)) {
+                alert("Nama harus menggunakan alphabet saja.");
+                e.preventDefault();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var namaField = document.getElementById("nama");
+            namaField.onkeypress = onlyAlphabets;
+            namaField.onpaste = handlePaste;
+        });
     </script>
 </head>
 <body>
@@ -86,11 +126,11 @@ if (isset($_POST['tambah'])) {
         <form action="tambah.php" method="POST" onsubmit="return validateForm()">
             <div class="mt-2">
                 <label for="nama" class="form-label">Nama Lengkap karyawan</label>
-                <input type="text" class="form-control" id="nama" name="nama" autocomplete="off">
+                <input type="text" class="form-control" id="nama" name="nama" autocomplete="off" autofocus="on">
             </div>
             <div class="form-group">
                 <label class="mt-2" for="jabatan">Jabatan</label>
-                <select class="form-control mt_1" name="jabatan" id="jabatan">
+                <select class="form-control mt-1" name="jabatan" id="jabatan">
                     <?php
                     $conn = new mysqli('localhost', 'root', '', 'kantor');
 
@@ -166,6 +206,6 @@ if (isset($_POST['tambah'])) {
         </form>
     </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -19,14 +19,13 @@ $kontak = query("SELECT kontak.id, kontak.id_karyawan, karyawan.nama, kontak.gma
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <?php include("../navbar.php"); ?>
     <div class="container">
         <h2>Data Kontak Karyawan</h2>
-        <a href="tambah.php"><button class="btn btn-primary mb-2">Tambah Data Kontak Karyawan</button></a>
+        <a href="tambah.php"><button class="btn btn-primary mb-2 fw-normal"><i class="bi bi-person-add"></i> Add new data</button></a>
         <table class="table table-bordered" id="datatable">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>NO  </th>
                     <th>Nama Lengkap Karyawan</th>
                     <th>Alamat Gmail</th>
                     <th>No Telepon</th>

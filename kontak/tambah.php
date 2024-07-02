@@ -1,5 +1,5 @@
 <?php
-include '../koneksi.php';
+require '../function.php';
 
 $error_message = '';
 
@@ -23,16 +23,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($row_check_phone['count'] > 0) {
             $error_message = "Nomor telepon ini sudah ada. Mohon masukkan nomor telepon yang lain.";
         } else {
-            // Insert data into database
-            $sql = "INSERT INTO kontak (id_karyawan, gmail, no_telp) VALUES (?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("iss", $karyawan_id, $gmail, $no_telp);
+            // Check if the email already exists
+            $sql_check_email = "SELECT COUNT(*) AS count FROM kontak WHERE gmail = ?";
+            $stmt_check_email = $conn->prepare($sql_check_email);
+            $stmt_check_email->bind_param("s", $gmail);
+            $stmt_check_email->execute();
+            $result_check_email = $stmt_check_email->get_result();
+            $row_check_email = $result_check_email->fetch_assoc();
 
-            if ($stmt->execute()) {
-                header("Location: index.php");
-                exit();
+            if ($row_check_email['count'] > 0) {
+                $error_message = "Email ini sudah digunakan. Mohon masukkan email yang lain.";
             } else {
-                $error_message = "Error inserting record: " . $stmt->error;
+                // Validate gmail format
+                if (!preg_match('/@gmail\.com$/', $gmail)) {
+                    $error_message = "Format email harus berakhir dengan '@gmail.com'.";
+                } else {
+                    // Insert data into database
+                    $sql = "INSERT INTO kontak (id_karyawan, gmail, no_telp) VALUES (?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("iss", $karyawan_id, $gmail, $no_telp);
+
+                    if ($stmt->execute()) {
+                        header("Location: /kontak/index.php");
+                        exit();
+                    } else {
+                        $error_message = "Error inserting record: " . $stmt->error;
+                    } 
+                }
             }
         }
     }
@@ -87,12 +104,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" id="karyawan_name" name="karyawan_name"  class="form-control" required>
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" required autofocus>
                 <input type="hidden" id="karyawan_id" name="karyawan_id">
             </div>
             <div class="mb-3">
                 <label for="gmail" class="form-label">Gmail</label>
                 <input type="email" id="gmail" name="gmail" class="form-control" autocomplete="off" required>
+                <div id="emailHelp" class="form-text"></div>
             </div>
             <div class="mb-3">
                 <label for="no_telp" class="form-label">No Telepon</label>

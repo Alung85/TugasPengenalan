@@ -15,7 +15,7 @@
 <body>
     <div class="container">
         <h2>Data Gaji</h2>
-        <a href="tambah.php"><button class="btn btn-primary mb-2">Tambah Data Gaji Karyawan</button></a>
+        <a href="tambah.php"><button class="btn btn-primary mb-2 fw-normal"><i class="bi bi-person-add"></i> Add new data</button></a>
         <table class="table table-bordered" id="datatable">
             <thead>
                 <tr>

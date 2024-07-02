@@ -1,6 +1,8 @@
 <?php
 $conn = mysqli_connect("localhost", "root", "", "kantor");
 
+include("navbar.php");
+
 function query($query, $params = []) {
     global $conn;
     $stmt = $conn->prepare($query);

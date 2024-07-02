@@ -1,5 +1,5 @@
 <?php
-include '../koneksi.php';
+require '../function.php';
 
 $error_message = '';
 
