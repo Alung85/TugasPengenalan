@@ -106,14 +106,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <div class="mt-2">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" class="form-control" id="karyawan_name" name="karyawan_name" autocomplete="off" autofocus="on">
-                <input type="hidden" id="karyawan_id" name="karyawan_id">
+                <input type="text" class="form-control" id="karyawan_name" name="karyawan_name" autocomplete="off" autofocus="on" value="<?php echo isset($_POST['karyawan_name']) ? $_POST['karyawan_name'] : ''; ?>">
+                <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo isset($_POST['karyawan_id']) ? $_POST['karyawan_id'] : ''; ?>">
 
                 <label for="jumlah_gaji" class="form-label">Jumlah Gaji</label>
-                <input type="text" class="form-control" id="jumlah_gaji" name="jumlah_gaji" autocomplete="off">
+                <input type="text" class="form-control" id="jumlah_gaji" name="jumlah_gaji" autocomplete="off" value="<?php echo isset($_POST['jumlah_gaji']) ? $_POST['jumlah_gaji'] : ''; ?>">
 
                 <label for="tanggal_gaji" class="form-label">Tanggal Gaji</label>
-                <input type="date" class="form-control " id="tanggal_gaji" name="tanggal_gaji">
+                <input type="date" class="form-control" id="tanggal_gaji" name="tanggal_gaji" value="<?php echo isset($_POST['tanggal_gaji']) ? $_POST['tanggal_gaji'] : ''; ?>">
 
                 <button type="submit" name="tambah" value="tambah" class="btn btn-primary mt-4">Simpan</button>
             </div>

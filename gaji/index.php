@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="../style.css">
+
 </head>
 <?php
     include("../navbar.php");
 ?>
 <body>
+<link rel="stylesheet" href="../style.css">
     <div class="container">
         <h2>Data Gaji</h2>
         <a href="tambah.php"><button class="btn btn-primary mb-2 fw-normal"><i class="bi bi-person-add"></i> Add new data</button></a>
@@ -42,7 +43,7 @@
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><?=($row['nama']) ?></td>
-                            <td>Rp. <?= number_format($row['jumlah_gaji'], 0, ',', '.') ?></td>
+                            <td>Rp<?= number_format($row['jumlah_gaji'], 0, ',', '.') ?></td>
                             <td><?= htmlspecialchars($row['tanggal_gaji']) ?></td>
                             <td>
                                 <a href="edit.php?id=<?= $row['id'] ?>"><button class="btn btn-warning btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"/><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"/><path d="M16 5l3 3"/></svg></button></a>

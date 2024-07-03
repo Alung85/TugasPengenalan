@@ -22,7 +22,8 @@ $karyawan = query("SELECT karyawan.id, karyawan.nama, jabatan.nama_jabatan, depa
 </head>
 <body>
     <div class="container">
-        <h2>Data Karyawan</h2>
+        <br>
+        <h2 class="mb-2">Data Karyawan</h2>
         <a href="tambah.php"><button class="btn btn-primary mb-2 fw-normal"><i class="bi bi-person-add"></i> Add new data</button></a>
 
         <table style="text-align: center;" id="datatable" class="table table-bordered">

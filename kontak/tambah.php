@@ -2,9 +2,13 @@
 require '../function.php';
 
 $error_message = '';
+$karyawan_name = '';
+$gmail = '';
+$no_telp = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $karyawan_id = $_POST['karyawan_id'];
+    $karyawan_name = $_POST['karyawan_name'];
     $gmail = $_POST['gmail'];
     $no_telp = $_POST['no_telp'];
 
@@ -108,17 +112,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" required autofocus>
-                <input type="hidden" id="karyawan_id" name="karyawan_id">
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo htmlspecialchars($karyawan_name); ?>" required autofocus>
+                <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo htmlspecialchars($karyawan_id); ?>">
             </div>
             <div class="mb-3">
                 <label for="gmail" class="form-label">Gmail</label>
-                <input type="email" id="gmail" name="gmail" class="form-control" autocomplete="off" required>
-                <div id="emailHelp" class="form-text"></div>
+                <input type="email" id="gmail" name="gmail" class="form-control" value="<?php echo htmlspecialchars($gmail); ?>" autocomplete="off" required>
             </div>
             <div class="mb-3">
                 <label for="no_telp" class="form-label">No Telepon</label>
-                <input type="text" id="no_telp" name="no_telp" class="form-control" autocomplete="off" pattern="\d{12}" maxlength="12" oninput="validatePhoneNumber(this)" required>
+                <input type="text" id="no_telp" name="no_telp" class="form-control" value="<?php echo htmlspecialchars($no_telp); ?>" autocomplete="off" pattern="\d{12}" maxlength="12" oninput="validatePhoneNumber(this)" required>
             </div>
             <button type="submit" name="save" value="save" class="btn btn-primary">Simpan</button>
         </form>
