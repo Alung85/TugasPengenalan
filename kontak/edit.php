@@ -1,5 +1,5 @@
 <?php
-require '../function.php';
+require '../function.php'; // Asumsikan ada file function.php untuk koneksi database
 
 $error_message = '';
 
@@ -8,10 +8,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $karyawan_id = $_POST['karyawan_id'];
     $gmail = $_POST['gmail'];
     $no_telp = $_POST['no_telp'];
+    $karyawan_name = $_POST['karyawan_name'];
 
-    // Validate no_telp length
-    if (strlen($no_telp) !== 12) {
-        $error_message = "Nomor telepon Invalid, Masukkan nomor telepon lain.";
+    // Validate no_telp length and ensure it contains only numbers
+    if (!preg_match("/^[0-9]{12}$/", $no_telp)) {
+        $error_message = "Nomor telepon harus terdiri dari 12 angka dan hanya mengandung angka.";
     } else {
         // Check if the phone number already exists
         $sql_check_phone = "SELECT COUNT(*) AS count FROM kontak WHERE no_telp = ? AND id != ?";
@@ -24,20 +25,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($row_check_phone['count'] > 0) {
             $error_message = "Nomor telepon ini sudah ada. Mohon masukkan nomor telepon yang lain.";
         } else {
-            // Update data in database
-            $sql = "UPDATE kontak SET 
-                    id_karyawan=?, 
-                    gmail=?, 
-                    no_telp=? 
-                    WHERE id=?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issi", $karyawan_id, $gmail, $no_telp, $kontak_id);
+            // Check if the email already exists
+            $sql_check_email = "SELECT COUNT(*) AS count FROM kontak WHERE gmail = ? AND id != ?";
+            $stmt_check_email = $conn->prepare($sql_check_email);
+            $stmt_check_email->bind_param("si", $gmail, $kontak_id);
+            $stmt_check_email->execute();
+            $result_check_email = $stmt_check_email->get_result();
+            $row_check_email = $result_check_email->fetch_assoc();
 
-            if ($stmt->execute()) {
-                header("Location: index.php");
-                exit();
+            if ($row_check_email['count'] > 0) {
+                $error_message = "Alamat Gmail ini sudah ada. Mohon masukkan alamat Gmail yang lain.";
             } else {
-                $error_message = "Error updating record: " . $stmt->error;
+                // Check if the name already exists in kontak table
+                $sql_check_name_kontak = "SELECT COUNT(*) AS count FROM kontak 
+                                          INNER JOIN karyawan ON kontak.id_karyawan = karyawan.id 
+                                          WHERE karyawan.nama = ? AND kontak.id != ?";
+                $stmt_check_name_kontak = $conn->prepare($sql_check_name_kontak);
+                $stmt_check_name_kontak->bind_param("si", $karyawan_name, $kontak_id);
+                $stmt_check_name_kontak->execute();
+                $result_check_name_kontak = $stmt_check_name_kontak->get_result();
+                $row_check_name_kontak = $result_check_name_kontak->fetch_assoc();
+
+                if ($row_check_name_kontak['count'] > 0) {
+                    $error_message = "Nama karyawan ini sudah ada dalam data kontak.";
+                } else {
+                    // Check if the name already exists in karyawan table
+                    $sql_check_name_karyawan = "SELECT id FROM karyawan WHERE nama = ?";
+                    $stmt_check_name_karyawan = $conn->prepare($sql_check_name_karyawan);
+                    $stmt_check_name_karyawan->bind_param("s", $karyawan_name);
+                    $stmt_check_name_karyawan->execute();
+                    $result_check_name_karyawan = $stmt_check_name_karyawan->get_result();
+                    $row_check_name_karyawan = $result_check_name_karyawan->fetch_assoc();
+
+                    if (!$row_check_name_karyawan) {
+                        $error_message = "Nama karyawan ini tidak ditemukan di tabel karyawan.";
+                    } else {
+                        $new_karyawan_id = $row_check_name_karyawan['id'];
+
+                        // Begin a transaction
+                        $conn->begin_transaction();
+
+                        // Update data kontak di tabel kontak
+                        $sql_update_kontak = "UPDATE kontak SET 
+                                              gmail = ?, 
+                                              no_telp = ?, 
+                                              id_karyawan = ? 
+                                              WHERE id = ?";
+                        $stmt_update_kontak = $conn->prepare($sql_update_kontak);
+                        $stmt_update_kontak->bind_param("ssii", $gmail, $no_telp, $new_karyawan_id, $kontak_id);
+                        $update_kontak_success = $stmt_update_kontak->execute();
+
+                        // Commit or rollback transaction based on update success
+                        if ($update_kontak_success) {
+                            $conn->commit();
+                            header("Location: index.php");
+                            exit();
+                        } else {
+                            $conn->rollback();
+                            $error_message = "Error updating record.";
+                        }
+                    }
+                }
             }
         }
     }
@@ -62,7 +110,6 @@ if (isset($_GET['id'])) {
     }
 } else {
     header("Location: index.php");
-    echo "Parameter ID tidak ada.";
     exit();
 }
 ?>
@@ -73,7 +120,7 @@ if (isset($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data Kontak</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .form-control {
             border: 2px solid #ccc;
@@ -100,6 +147,11 @@ if (isset($_GET['id'])) {
                     $('#karyawan_id').val(ui.item.id);
                 }
             });
+
+            // Validate phone number input to only allow numbers
+            $("#no_telp").on("input", function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
         });
     </script>
 </head>
@@ -116,7 +168,7 @@ if (isset($_GET['id'])) {
             <input type="hidden" name="kontak_id" value="<?php echo $row['id']; ?>">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo $row['nama']; ?>" required>
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo $row['nama']; ?>" required autofocus>
                 <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo $row['id_karyawan']; ?>">
             </div>
             <div class="mb-3">
@@ -130,6 +182,6 @@ if (isset($_GET['id'])) {
             <button type="submit" name="update" value="update" class="btn btn-primary">Simpan</button>
         </form>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

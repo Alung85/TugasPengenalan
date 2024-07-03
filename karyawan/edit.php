@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="edit.php?id=<?= $row['id'] ?>" method="POST">
             <div class="mb-3">
                 <label for="nama" class="form-label">Nama Karyawan</label>
-                <input type="text" id="nama" name="nama" class="form-control" value="<?= $row['nama'] ?>" required autocomplete="off">
+                <input type="text" id="nama" name="nama" class="form-control" value="<?= $row['nama'] ?>" required autocomplete="off" autofocus="on">
             </div>
             <div class="mb-3">
                 <label for="jabatan" class="form-label">Jabatan</label>

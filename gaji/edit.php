@@ -119,7 +119,7 @@ if (isset($_GET['id'])) {
             <input type="hidden" name="gaji_id" value="<?php echo $row['id']; ?>">
             <div class="mb-3">
                 <label for="karyawan_name" class="form-label">Nama Karyawan</label>
-                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo htmlspecialchars($row['nama']); ?>" required>
+                <input type="text" id="karyawan_name" name="karyawan_name" class="form-control" value="<?php echo htmlspecialchars($row['nama']); ?>" required autofocus="on">
                 <input type="hidden" id="karyawan_id" name="karyawan_id" value="<?php echo $row['id_karyawan']; ?>">
             </div>
             <div class="mb-3">
